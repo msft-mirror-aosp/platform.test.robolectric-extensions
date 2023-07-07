@@ -1,5 +1,7 @@
 package org.robolectric.android.plugins;
 
+import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
+
 import com.google.auto.service.AutoService;
 
 import org.robolectric.internal.dependency.DependencyResolver;
@@ -27,12 +29,7 @@ public class AndroidLocalSdkProvider extends DefaultSdkProvider {
     protected void populateSdks(TreeMap<Integer, Sdk> knownSdks) {
         super.populateSdks(knownSdks);
         System.out.println("In android populate sdk.");
-        DefaultSdk localBuiltSdk = new DefaultSdk(
-                10000,
-                "current",
-                "r0",
-                "UpsideDownCake",
-                9);
+        DefaultSdk localBuiltSdk = new DefaultSdk(10000, "current", "r0", "UpsideDownCake", 9);
         File location = localBuiltSdk.getJarPath().toFile();
         AndroidVersions.AndroidRelease release = null;
         try {
@@ -40,14 +37,7 @@ public class AndroidLocalSdkProvider extends DefaultSdkProvider {
             release = AndroidVersionInitTools.computeReleaseVersion(jarFile);
             System.out.println("Found release :" + release.toString());
             if (release != null) {
-                int jdkVersion = getMajorJdkVersion();
-                System.out.println("JDK version :" + jdkVersion);
-                DefaultSdk currentSdk = new DefaultSdk(
-                        release.getSdkInt(),
-                        "current",
-                        "r0",
-                        release.getShortCode(),
-                        jdkVersion);
+                DefaultSdk currentSdk = new DefaultSdk(release.getSdkInt(), "current", "r0", release.getShortCode(), 17);
                 for (int sdkInt : knownSdks.keySet()) {
                     if (sdkInt >= release.getSdkInt()) {
                         System.out.println("Removing :" + sdkInt);
@@ -63,11 +53,5 @@ public class AndroidLocalSdkProvider extends DefaultSdkProvider {
             throw new RuntimeException("Could not read the version of the current android-all sdk"
             + "this prevents robolectric from determining which shadows to apply.", ioe);
         }
-    }
-
-    private int getMajorJdkVersion() {
-        String javaVersion = System.getProperty("java.version");
-        String[] parts = javaVersion.split("\\.");
-        return Integer.valueOf(parts[0]);
     }
 }
